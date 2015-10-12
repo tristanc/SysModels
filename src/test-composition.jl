@@ -1,6 +1,7 @@
 
+using SysModels
 
-ret = @parallel (combine) for i = 1 : 10
+#ret = @parallel (combine) for i = 1 : 10
 
 m1 = create_device_loss_model()
 m2 = create_tailgating_model()
@@ -73,7 +74,7 @@ delete!(m.data, "employees")
 
 data_to_vector(m)
 
-end
+#end
 
 #for (k,v) in m.data
 #        println("$k: $v")
