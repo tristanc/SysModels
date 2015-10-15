@@ -47,6 +47,8 @@ end
 
 function start_server(base_dir :: String)
 
+    local ds :: Dictionary{String, Any}
+
     @app ui_server = (
         Mux.defaults,
         page(get_index),
