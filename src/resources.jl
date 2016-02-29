@@ -1,7 +1,7 @@
 
 
 function byres(res :: Resource)
-    function find_res (resources)
+    function find_res(resources)
         ix = findfirst(resources, res)
         if ix > 0
             return true, Resource[resources[ix]]
@@ -13,7 +13,7 @@ function byres(res :: Resource)
 end
 
 function bytype(t :: Type)
-    function find_res (resources)
+    function find_res(resources)
         filtered = filter(a -> typeof(a) == t, resources)
         if length(filtered) > 0
             return true, filtered[1:1]
@@ -25,7 +25,7 @@ function bytype(t :: Type)
 end
 
 function find(f :: Function, count :: Int64 = 1)
-    function find_res (resources)
+    function find_res(resources)
         filtered = filter(f, resources)
         if length(filtered) > 0
             if count == 0
@@ -365,7 +365,7 @@ macro claim(p, ex, timeout...)
     return ret
 end
 
-function release(proc :: Process, loc :: Location, resources :: Vector{Resource}, store_name :: String = "default")
+function release(proc :: Process, loc :: Location, resources :: Vector{Resource}, store_name :: ASCIIString = "default")
     local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     append!(store.resources, resources)
@@ -373,7 +373,7 @@ function release(proc :: Process, loc :: Location, resources :: Vector{Resource}
     updated_store(sim, store)
 end
 
-function release(proc :: Process, loc :: Location, resource :: Resource, store_name :: String = "default")
+function release(proc :: Process, loc :: Location, resource :: Resource, store_name :: ASCIIString = "default")
     local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     push!(store.resources, resource)

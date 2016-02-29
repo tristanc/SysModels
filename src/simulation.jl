@@ -2,14 +2,14 @@
 
 type Process
 
-	name :: String
+	name :: ASCIIString
 	scheduled :: Bool
 	start_func :: Function
 	task :: Task
 	claimed_resources :: Vector{Resource}
 	simulation
 
-	function Process(name :: String, start_func :: Function)
+	function Process(name :: ASCIIString, start_func :: Function)
 			p = new()
 			p.name = name
 			p.scheduled = false
@@ -41,15 +41,15 @@ end
 #Base.show(io :: IO, s :: Store) = print(io, "Store")
 
 type Location
-	name :: String
-	stores :: Dict{String, Store}
+	name :: ASCIIString
+	stores :: Dict{ASCIIString, Store}
 	links :: Dict{Location, Bool}
 	resources :: Vector{Resource}
 
-	function Location(name :: String)
+	function Location(name :: ASCIIString)
 			loc = new()
 			loc.name = name
-			loc.stores = Dict{String, Store}()
+			loc.stores = Dict{ASCIIString, Store}()
 			s = Store()
 			loc.stores["default"] = s
 			loc.resources = Resource[]
@@ -82,38 +82,38 @@ type OutputLocation
 end
 
 type Interface
-	input_locations :: Dict{String, InputLocation}
-	output_locations :: Dict{String, OutputLocation}
+	input_locations :: Dict{ASCIIString, InputLocation}
+	output_locations :: Dict{ASCIIString, OutputLocation}
 
 	function Interface()
 		i = new()
-		i.input_locations = Dict{String, InputLocation}()
-		i.output_locations = Dict{String, OutputLocation}()
+		i.input_locations = Dict{ASCIIString, InputLocation}()
+		i.output_locations = Dict{ASCIIString, OutputLocation}()
 		return i
 	end
 end
 
 type Model
-	interfaces :: Dict{String, Interface}
-	interface_funcs :: Dict{String, Dict{Type, Function}}
+	interfaces :: Dict{ASCIIString, Interface}
+	interface_funcs :: Dict{ASCIIString, Dict{Type, Function}}
 
 	setup:: Function
 
 	env_processes :: Vector{Process}
 
-	locations :: Dict{String, Location}
+	locations :: Dict{ASCIIString, Location}
 
-	params :: Dict{String, Any}
-	data :: Dict{String, Any}
+	params :: Dict{ASCIIString, Any}
+	data :: Dict{ASCIIString, Any}
 
 	function Model()
 		m = new()
-		m.interfaces = Dict{String, Interface}()
+		m.interfaces = Dict{ASCIIString, Interface}()
 		m.env_processes = []
-		m.locations = Dict{String, Location}()
-		m.interface_funcs = Dict{String, Dict{Type, Function}}()
-		m.params = Dict{String, Any}()
-		m.data = Dict{String, Any}()
+		m.locations = Dict{ASCIIString, Location}()
+		m.interface_funcs = Dict{ASCIIString, Dict{Type, Function}}()
+		m.params = Dict{ASCIIString, Any}()
+		m.data = Dict{ASCIIString, Any}()
 		m.setup = (mod :: Model) -> begin end
 		return m
 	end

@@ -1,5 +1,5 @@
 
-function get_store(loc :: Location, store_name :: String = "default")
+function get_store(loc :: Location, store_name :: ASCIIString = "default")
     return loc.stores[store_name]
 end
 
@@ -47,7 +47,7 @@ function distrib(resources :: Vector{Resource}, loc :: Location, store_name = "d
     append!(s.resources, resources)
 end
 
-function add(proc :: Process, resource :: Resource, loc :: Location, store_name :: String = "default")
+function add(proc :: Process, resource :: Resource, loc :: Location, store_name :: ASCIIString = "default")
     push!(loc.resources, resource)
 
     @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
@@ -62,10 +62,10 @@ function add(proc :: Process, resource :: Resource, loc :: Location, store_name 
     updated_store(proc.simulation, s)
 end
 
-function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: String = "default")
+function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: ASCIIString = "default")
 
     #call normal add function
-    invoke(add, (Process, Resource, Location, String), proc, agent, loc, store_name)
+    invoke(add, (Process, Resource, Location, ASCIIString), proc, agent, loc, store_name)
 
     #creates a link from what the agent is carrying to the location the agent is in
     carrying = get_data(agent).carrying
@@ -73,7 +73,7 @@ function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: Str
 
 end
 
-function add(proc :: Process, resources :: Vector{Resource}, loc :: Location, store_name :: String = "default")
+function add(proc :: Process, resources :: Vector{Resource}, loc :: Location, store_name :: ASCIIString = "default")
     for r in resources
         add(proc, r, loc, store_name)
     end

@@ -18,7 +18,7 @@ module SysModels
 
     jsloglevel = LOG_OFF
 
-    for x in [1:length(ARGS)]
+    for x in [1:length(ARGS);]
         if ARGS[x] == "--jslog"
             jsloglevel = int(ARGS[x+1])
         end

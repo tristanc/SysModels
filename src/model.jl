@@ -2,11 +2,11 @@
 
 
 
-function get_location(model :: Model, loc :: String)
+function get_location(model :: Model, loc :: ASCIIString)
 	return model.locations[loc]
 end
 
-function get_funcs(model :: Model, name :: String)
+function get_funcs(model :: Model, name :: ASCIIString)
 	funcs = model.interface_funcs[name]
 	return funcs
 end
@@ -29,7 +29,7 @@ function get_model(proc :: Process)
 	return proc.simulation.model
 end
 
-function compose(m1 :: Model, iface1 :: String, m2 :: Model, iface2 :: String)
+function compose(m1 :: Model, iface1 :: ASCIIString, m2 :: Model, iface2 :: ASCIIString)
 
 	model = Model()
 
