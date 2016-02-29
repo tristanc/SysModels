@@ -2,12 +2,12 @@
 
 This is a Julia package for creating Systems Models.
 
-The code was written for modeling aspects of organizational security, and the
+The code was written for modelling aspects of organizational security, and the
 package currently reflects this.  Eventually, the goal is to move the
 security-specific code into its own SecModels package, leaving the generic systems
-modeling code here.
+modelling code here.
 
-The code was written as part of the Productive Security project, and was used
+The code was written as part of the [Productive Security](http://www.riscs.org.uk/?page_id=15) project, and was used
 in several publications:
 
 * Tristan Caulfield and David Pym. Improving security policy decisions with models. _Security & Privacy, IEEE_, 13(5):34–41, Sept 2015. doi:10.1109/MSP.2015.97.
