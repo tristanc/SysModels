@@ -3,17 +3,20 @@
 #include("shared-resources.jl")
 
 
-type TailgateSignal <: Resource
-  tailgater :: Agent
-  challenged :: Bool
-end
+# type TailgateSignal <: Resource
+#   tailgater :: Agent
+#   challenged :: Bool
+# end
+#TailgateSignal(agent :: Agent) = TailgateSignal(agent, false)
 
 type Receptionist <: Resource
 end
 
-TailgateSignal(agent :: Agent) = TailgateSignal(agent, false)
+
 
 function create_tailgating_model()
+
+
 
   #define locations
   local loc_outside :: Location
@@ -27,6 +30,9 @@ function create_tailgating_model()
   link(loc_foyer, loc_entry)
   link(loc_sec, loc_foyer)
   link(loc_reception, loc_foyer)
+
+  #locations for signals
+  local sig_tailgate = Location("Signal:Tailgate")
 
 
   entry_door :: Door = Door(loc_foyer)
@@ -65,12 +71,17 @@ function create_tailgating_model()
   end
 
   function through_entry(proc :: Process, agent :: Agent)
-    #println("normal entry")
+    println("normal entry")
     access(proc, agent, entry_door)
+    println("N1")
     move(proc, agent, loc_foyer, loc_entry)
+    println("N2")
 
-    f = find( res -> isa(res, TailgateSignal) && !res.challenged )
-    success, claimed = @claim(proc, (loc_entry, f), 12.0seconds)
+    #f = find( res -> isa(res, TailgateSignal) && !res.challenged )
+    #success, claimed = @claim(proc, (loc_entry, f), 12.0seconds)
+
+    success, evts = observe(sig_tailgate, proc, 12.0seconds)
+
     if success
         #println("observed tailgating")
 
@@ -81,7 +92,7 @@ function create_tailgating_model()
             "value" => "Observed tailgating."
         ))
 
-        sig = flatten(claimed)[1]
+        #sig = flatten(claimed)[1]
         #choice = choose(agent, :ignore, :challenge)
         choices = Dict{Symbol, Vector{Float64}}(:ignore => [1.7, 1.1], :challenge => [1.3, 1.5])
         choice = choose(agent, choices)
@@ -96,22 +107,29 @@ function create_tailgating_model()
         if choice == :ignore
             #println("ignore")
             #release resource so others can see
-            release(proc, loc_entry, sig)
+            #release(proc, loc_entry, sig)
+            for evt in evts
+                ignore(evt,proc)
+            end
         else
         #    println("challenge")
-            sig.challenged = true
-            release(proc, loc_entry, sig)
+            #sig.challenged = true
+            #release(proc, loc_entry, sig)
+            for evt in evts
+                handle!(evt, proc)
+            end
+
             hold(proc, 15seconds)
         end
-
     end
 
 
     move(proc, agent, loc_entry, loc_atrium)
+    println("N3")
   end
 
   function through_entry_tailgate(proc :: Process, agent :: Agent)
-    #println("tailgate")
+    println("emp tailgate")
     #tailgate through the door
     access(proc, agent, entry_door)
     move(proc, agent, loc_foyer, loc_entry)
@@ -140,16 +158,21 @@ function create_tailgating_model()
         "var" => "tailgate"
     ))
 
-    sig = TailgateSignal(agent)
-    add(proc, sig, loc_entry)
+    # sig = TailgateSignal(agent)
+    # add(proc, sig, loc_entry)
+
+    evt = startevent(sig_tailgate, proc, agent)
 
     hold(proc, 10seconds)
 
-    f = find( res -> isa(res, TailgateSignal) && res.tailgater == agent )
-    success, claimed = @claim(proc, (loc_entry, f))
+    stopevent(proc, evt)
+
+    # f = find( res -> isa(res, TailgateSignal) && res.tailgater == agent )
+    # success, claimed = @claim(proc, (loc_entry, f))
 
 
-    if sig.challenged
+    #if sig.challenged
+    if handled(evt)
         #println("got challenged")
         model.data["tailgate_challenged_employee"] += 1
 
@@ -169,7 +192,9 @@ function create_tailgating_model()
 
         #go back and queue for reception
         access(proc, agent, entry_door)
+        println("AAA")
         move(proc, agent, loc_entry, loc_foyer)
+        println("BBB")
         hold(proc, 15seconds)
         queue_for_badge(proc, agent)
         access(proc, agent, entry_door)
@@ -181,7 +206,7 @@ function create_tailgating_model()
     end
 
     #now remove our resource
-    remove(proc, sig, loc_entry)
+    #remove(proc, sig, loc_entry)
 
     #println("To Atrium")
     move(proc, agent, loc_entry, loc_atrium)
@@ -195,7 +220,7 @@ function create_tailgating_model()
 
 
   function agent_process(proc :: Process, agent :: Agent)
-
+     println("agent_process")
 
     model = get_model(proc)
 
@@ -306,7 +331,7 @@ function create_tailgating_model()
 
 
   function attacker_tailgate(proc :: Process, agent :: Attacker)
-      #println("tailgate")
+      println("att tailgate")
       #tailgate through the door
 
       model = get_model(proc)
@@ -336,15 +361,19 @@ function create_tailgating_model()
           "var" => "tailgate"
       ))
 
-      sig = TailgateSignal(agent)
-      add(proc, sig, loc_entry)
-
+      #sig = TailgateSignal(agent)
+      #add(proc, sig, loc_entry)
+      println("A0")
+      evt = startevent(sig_tailgate, proc, agent)
+      println("A1")
       hold(proc, 10seconds)
+      stopevent(proc, evt)
+      println("A2")
 
-      f = find( res -> isa(res, TailgateSignal) && res.tailgater == agent )
-      success, claimed = @claim(proc, (loc_entry, f))
+      #f = find( res -> isa(res, TailgateSignal) && res.tailgater == agent )
+      #success, claimed = @claim(proc, (loc_entry, f))
 
-      if sig.challenged
+      if handled(evt)
           #println("got challenged")
           model.data["tailgate_challenged_attacker"] += 1
 
@@ -364,12 +393,12 @@ function create_tailgating_model()
 
           #just go home
 
-          remove(proc, sig, loc_entry)
+          #remove(proc, sig, loc_entry)
       else
           hold(proc, 5seconds)
           #move to atrium
           move(proc, agent, loc_entry, loc_atrium)
-          remove(proc, sig, loc_entry)
+          #remove(proc, sig, loc_entry)
 
           #call next model
           model.data["tailgate_success_attacker"] += 1
@@ -387,7 +416,7 @@ function create_tailgating_model()
     end
 
   function attacker_process(proc :: Process, agent :: Attacker)
-    #println("attacker starting")
+    println("attacker starting")
     move(proc, agent, loc_outside, loc_foyer)
 
     model = get_model(proc)
@@ -422,7 +451,7 @@ function create_tailgating_model()
   end
 
   function start_attackers(proc :: Process)
-      #println("start_attackers")
+      println("start_attackers")
       local sim :: Simulation = proc.simulation
       local model = sim.model
 
@@ -431,12 +460,12 @@ function create_tailgating_model()
       for emp in model.data["attackers"]
           att_proc = Process("attacker", (p) -> launch_attacker_process(p, emp))
           add(proc, emp, loc_outside)
-          start(proc, att_proc, rand(d_start_time))
+          SysModels.start(proc, att_proc, rand(d_start_time))
       end
   end
 
   function start_agents(proc :: Process)
-
+      println("start_agents")
       local sim :: Simulation = proc.simulation
       local model = sim.model
 
@@ -445,13 +474,13 @@ function create_tailgating_model()
       for emp in model.data["employees"]
           emp_proc = Process("employee", (p) -> launch_agent_process(p, emp) )
           add(proc, emp, loc_outside)
-          start(proc, emp_proc, rand(d_start_time))
+          SysModels.start(proc, emp_proc, rand(d_start_time))
       end
 
       for emp in model.data["leaders"]
           emp_proc = Process("leader", (p) -> launch_agent_process(p, emp) )
           add(proc, emp, loc_outside)
-          start(proc, emp_proc, rand(d_start_time))
+          SysModels.start(proc, emp_proc, rand(d_start_time))
       end
 
   end
@@ -462,6 +491,7 @@ function create_tailgating_model()
 
   model.setup = (mod :: Model) ->
     begin
+        println("XXX")
         loc_outside = get_location(mod, "Outside")
         link(loc_outside, loc_foyer)
 
@@ -508,13 +538,52 @@ function create_tailgating_model()
 
 end
 
-# m = create_tailgating_model()
-# sim = Simulation(m)
-#
-# logstream = open("test.log", "w")
-# jslog_init(sim, logstream)
-#
-# start(sim)
-# run(sim, 12hours)
-#
-# jslog_end(sim)
+
+function test_tailgating_model()
+
+
+    m = create_tailgating_model()
+
+    m.params["num_groups"] = 20
+    m.params["employees_per_group"] = 20
+    m.params["expected_arrival_time"] = 9hours
+
+    m.params["num_receptionists"] = 1
+    m.params["dist_reception_time"] = Normal(120, 20seconds)
+
+    m.params["num_guards"] = 1
+    m.params["p_guard_observes"] = .6
+
+
+    m.params["p_forget_card"] = .05
+
+
+    m.params["dist_prod"] = Beta(2,2)
+    m.params["dist_sec"] = Beta(2,2)
+
+    m.params["num_attackers"] = 5
+
+    m.params["p_public_transport"] = .5
+    m.params["p_lose_device"] = .001
+
+
+    #data from tailgating model
+    m.data["tailgate_attempts_employee"] = 0
+    m.data["tailgate_success_employee"] = 0
+    m.data["tailgate_challenged_employee"] = 0
+    m.data["tailgate_attempts_attacker"] = 0
+    m.data["tailgate_success_attacker"] = 0
+    m.data["tailgate_challenged_attacker"] = 0
+    m.data["reception_count"] = 0
+    m.data["reception_wait_times"] = Float64[]
+    m.data["guard_stopped_employee"] = 0
+    m.data["guard_stopped_attacker"] = 0
+
+    create_agents(m)
+    sim = Simulation(m)
+
+    SysModels.start(sim)
+
+    SysModels.run(sim, 24hours)
+    return nothing
+end
