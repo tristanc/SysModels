@@ -29,13 +29,14 @@ module SysModels
 
 
 
-    include("vis.jl")
+    include("vis/vis.jl")
     include("simulation.jl")
     include("process.jl")
     include("model.jl")
     include("agent.jl")
     include("location.jl")
     include("resources.jl")
+    include("observation.jl")
 
     include("door.jl")
     include("choice.jl")
@@ -57,6 +58,10 @@ module SysModels
 
     export choose, choose_stochastic
 
+    #observation.jl
+    export Event, ignore, handle!, handler, handled, observe, startevent, stopevent
+
+    # js logging for traces
     export LOG_OFF, LOG_MIN, LOG_MAX, @jslog, jslog, jslog_init, jslog_end
 
     #export show

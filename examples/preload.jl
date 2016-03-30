@@ -1,4 +1,5 @@
-using SecSim
+using SysModels
+import SysModels.now
 using Distributions
 
 include("shared-resources.jl")
