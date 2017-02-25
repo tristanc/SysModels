@@ -2,11 +2,11 @@
 
 
 
-function get_location(model :: Model, loc :: ASCIIString)
+function get_location(model :: Model, loc :: String)
 	return model.locations[loc]
 end
 
-function get_funcs(model :: Model, name :: ASCIIString)
+function get_funcs(model :: Model, name :: String)
 	funcs = model.interface_funcs[name]
 	return funcs
 end
@@ -18,7 +18,7 @@ function get_func(funcs :: Dict{Type, Function}, t :: Type)
 		if haskey(funcs, curtype)
 			return funcs[curtype]
 		end
-		curtype = super(curtype)
+		curtype = supertype(curtype)
 	end
 
 	#error, func not found!
@@ -29,7 +29,7 @@ function get_model(proc :: Process)
 	return proc.simulation.model
 end
 
-function compose(m1 :: Model, iface1 :: ASCIIString, m2 :: Model, iface2 :: ASCIIString)
+function compose(m1 :: Model, iface1 :: String, m2 :: Model, iface2 :: String)
 
 	model = Model()
 

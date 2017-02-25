@@ -4,11 +4,11 @@
 # include("shared-resources.jl")
 
 type Group
-    name :: ASCIIString
+    name :: String
     share :: Location
     members :: Vector{Employee}
 
-    function Group(name :: ASCIIString)
+    function Group(name :: String)
         g = new()
         g.name = name
         g.share = Location("group-share: $name")
@@ -26,7 +26,7 @@ function create_document_sharing_model()
 
 
 
-    local groups = Dict{ASCIIString, Group}()
+    local groups = Dict{String, Group}()
 
 
     local signals = Location("signals")

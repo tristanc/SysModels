@@ -349,7 +349,7 @@ macro claim(p, ex, timeout...)
             lexp = build_tree(exp.args[1])
             rexp = build_tree(exp.args[2])
             op = string(exp.head)
-            return :(ClaimTreeNode(symbol($(esc(op))), $lexp, $rexp))
+            return :(ClaimTreeNode(Symbol($(esc(op))), $lexp, $rexp))
         end
     end
 
@@ -365,7 +365,7 @@ macro claim(p, ex, timeout...)
     return ret
 end
 
-function release(proc :: Process, loc :: Location, resources :: Vector{Resource}, store_name :: ASCIIString = "default")
+function release(proc :: Process, loc :: Location, resources :: Vector{Resource}, store_name :: String = "default")
     local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     append!(store.resources, resources)
@@ -373,7 +373,7 @@ function release(proc :: Process, loc :: Location, resources :: Vector{Resource}
     updated_store(sim, store)
 end
 
-function release(proc :: Process, loc :: Location, resource :: Resource, store_name :: ASCIIString = "default")
+function release(proc :: Process, loc :: Location, resource :: Resource, store_name :: String = "default")
     local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     push!(store.resources, resource)

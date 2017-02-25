@@ -1,36 +1,36 @@
 
 
 type Information <: Resource
-    allowed_access :: Vector{ASCIIString}
+    allowed_access :: Vector{String}
 end
 
 type Computer <: Resource
     contents :: Location
 end
 
-Computer(name :: ASCIIString) = Computer(Location(name))
+Computer(name :: String) = Computer(Location(name))
 
 type PortableMedia <: Resource
     contents :: Location
 end
 
-PortableMedia(name :: ASCIIString) = PortableMedia(Location(name))
+PortableMedia(name :: String) = PortableMedia(Location(name))
 
 type Employee <: Agent
     data :: AgentData
 end
-Employee(name :: ASCIIString) = Employee(AgentData(name))
+Employee(name :: String) = Employee(AgentData(name))
 
 
 type Leader <: Agent
     data :: AgentData
 end
-Leader(name ::ASCIIString) = Leader(AgentData(name))
+Leader(name ::String) = Leader(AgentData(name))
 
 type Attacker <: Agent
     data :: AgentData
 end
-Attacker(name ::ASCIIString) = Attacker(AgentData(name))
+Attacker(name ::String) = Attacker(AgentData(name))
 
 function create_agents(model :: Model)
 

@@ -7,7 +7,7 @@ abstract Information <: Resource
 
 type Computer <: Resource
     contents :: Location
-    function Computer(name :: ASCIIString)
+    function Computer(name :: String)
         c = new()
         c.contents = Location(name)
         return c
@@ -20,7 +20,7 @@ end
 
 type DVD <: Resource
     contents :: Location
-    function DVD(name :: ASCIIString)
+    function DVD(name :: String)
         dvd = new()
         dvd.contents = Location(name)
         return dvd

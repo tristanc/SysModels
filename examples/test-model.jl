@@ -1,6 +1,7 @@
 
-using SecSim
-import SecSim.@claim
+using SysModels
+
+#import SecSim.@claim
 
 type Employee <: Agent
     data :: AgentData

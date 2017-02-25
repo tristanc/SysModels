@@ -1,6 +1,12 @@
+include("preload.jl")
 
+import SysModels.start
+import SysModels.run
+import SysModels.find
 
-ret = @parallel (combine) for i = 1 : 10
+#ret = @parallel (combine) for i = 1 : 1
+
+for i = 1:1
 
 m1 = create_device_loss_model()
 m2 = create_tailgating_model()
@@ -10,8 +16,8 @@ temp_m = compose(m1, "Outside", m2, "Outside")
 
 m = compose(m3, "Atrium", temp_m, "Atrium")
 
-m.params["num_groups"] = 20
-m.params["employees_per_group"] = 20
+m.params["num_groups"] = 5
+m.params["employees_per_group"] = 5
 m.params["expected_arrival_time"] = 9hours
 
 m.params["num_receptionists"] = 1

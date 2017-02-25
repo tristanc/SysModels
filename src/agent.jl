@@ -3,12 +3,12 @@ abstract Agent <: Resource
 
 
 type AgentData
-    name :: ASCIIString
+    name :: String
     carrying :: Location
     data :: Dict{Any, Any}
 end
 
-AgentData(name :: ASCIIString) = AgentData(name, Location("carrying: $name"), Dict{Any, Any}())
+AgentData(name :: String) = AgentData(name, Location("carrying: $name"), Dict{Any, Any}())
 
 get_data(agent :: Agent) = agent.data
 

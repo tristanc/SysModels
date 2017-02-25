@@ -31,7 +31,7 @@ function choose_stochastic(agent :: Agent, choices :: Dict{Symbol, Vector{Float6
     prefs = get_data(agent).data["preferences"]
 
     scores = Float64[]
-    symbols = Symbol[]
+    Symbols = Symbol[]
     total = 0
 
     for (sym, vals) in choices
@@ -41,7 +41,7 @@ function choose_stochastic(agent :: Agent, choices :: Dict{Symbol, Vector{Float6
         end
         total += score
         push!(scores, score)
-        push!(symbols, sym)
+        push!(Symbols, sym)
     end
 
     #now normalise
@@ -49,10 +49,10 @@ function choose_stochastic(agent :: Agent, choices :: Dict{Symbol, Vector{Float6
 
     r = rand()
     cur_total = 0
-    for i = 1:length(symbols)
+    for i = 1:length(Symbols)
         cur_total += scores[i]
         if r <= cur_total
-            return symbols[i]
+            return Symbols[i]
         end
     end
 
