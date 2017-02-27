@@ -2,13 +2,33 @@
 
 This is a Julia package for creating Systems Models.
 
+It requires Julia 0.5 or 0.6.
+
+You can install it from the julia shell:
+
+```julia
+julia> Pkg.clone("https://github.com/tristanc/SysModels.git")
+```
+
+There are some small examples in the test/ directory, and some larger ones,
+based on the code used in some of the papers below, in the examples/ folder.
+
+Better documentation will be coming soon.
+
 The code was written for modelling aspects of organizational security, and the
 package currently reflects this.  Eventually, the goal is to move the
 security-specific code into its own SecModels package, leaving the generic systems
 modelling code here.
 
-The code was written as part of the [Productive Security](http://www.riscs.org.uk/?page_id=15) project, and was used
-in several publications:
+The code was written as part of the
+[Productive Security](http://www.riscs.org.uk/?page_id=15) project, and was
+used in several publications:
+
+
+
+* Tristan Caulfield and Simon Parkin. Case study: predicting the impact of a physical access control intervention. In _STAST: 6th International Workshop on Socio-Technical Aspects in Security and Trust, 2016_.
+
+* Tristan Caulfield, Michelle Baddeley, and David Pym. Social learning in systems security modelling. In _Social Simulation Conference 2016_.
 
 * Tristan Caulfield and David Pym. Improving security policy decisions with models. _Security & Privacy, IEEE_, 13(5):34–41, Sept 2015. doi:10.1109/MSP.2015.97.
 

@@ -5,6 +5,7 @@ module SysModels
     import Base.Collections.PriorityQueue, Base.Collections.peek, Base.Collections.dequeue!
     import Base.Order
     using JSON
+    using Distributions
 
     const seconds = 1.0
     const minutes = 60seconds

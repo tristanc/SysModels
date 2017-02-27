@@ -13,20 +13,22 @@ end
 Door(loc :: Location) = Door(loc, DoorOpen(0.0), false, Location("door-signal-location"))
 
 function access(proc :: Process, agent :: Agent, door :: Door)
-    
+
     success, claimed = @claim(proc, (door.loc, door))
+
+    d_time = Distributions.Normal(0, .2seconds)
 
     if door.is_open
 
-      door.open_res.close_time = now(proc) + 20seconds
-      hold(proc, 5.0seconds)
+      door.open_res.close_time = now(proc) + 7seconds
+      hold(proc, 1.2seconds + rand(d_time))
 
     else
 
       #wait a few seconds, the time to open the door and go through
-      hold(proc, 15.0seconds)
+      hold(proc, 2.0seconds + rand(d_time))
       #now launch the close process
-      door.open_res.close_time = now(proc) + 10seconds
+      door.open_res.close_time = now(proc) + 7seconds
       doorproc = Process("door_close_process", (p) -> door_close_process(p, door))
       start(proc, doorproc)
     end
