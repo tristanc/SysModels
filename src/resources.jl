@@ -12,11 +12,27 @@ function byres(res :: Resource)
     return find_res
 end
 
-function bytype(t :: Type)
+function bytype(t :: Type, count :: Int64 = 1)
     function find_res(resources)
-        filtered = filter(a -> typeof(a) == t, resources)
-        if length(filtered) > 0
-            return true, filtered[1:1]
+        filtered = filter(a -> isa(a, t), resources)
+        if length(filtered) >= count
+            return true, filtered[1:count]
+        else
+            return false, filtered
+        end
+    end
+    return find_res
+end
+
+function bytype(t :: Type, min :: Int64, max :: Int64)
+    function find_res(resources)
+        filtered = filter(a -> isa(a, t), resources)
+        if length(filtered) >= min
+            count = length(filtered)
+            if count > max
+                count = max
+            end
+            return true, filtered[1:count]
         else
             return false, filtered
         end
@@ -69,6 +85,10 @@ type ClaimTreeNode
 
     function ClaimTreeNode(store :: Store, t :: Type)
         return ClaimTreeNode(store, bytype(t))
+    end
+
+    function ClaimTreeNode(store :: Store, t :: Type, count :: Int64)
+        return ClaimTreeNode(store, bytype(t, count))
     end
 
     function ClaimTreeNode(op :: Symbol, left :: ClaimTreeNode, right :: ClaimTreeNode)
