@@ -21,7 +21,7 @@ module SysModels
 
     for x in [1:length(ARGS);]
         if ARGS[x] == "--jslog"
-            jsloglevel = int(ARGS[x+1])
+            jsloglevel = Int64( parse(ARGS[x+1]) )
         end
     end
 
@@ -47,6 +47,7 @@ module SysModels
     export Simulation, Model, Resource, Process, Location, InputLocation, OutputLocation, Interface, Store
     export Agent, AgentData, get_data
 
+    
     export link, enable_link, disable_link
     export move, claim, release, distrib, add, remove, find, flatten, get_store
     export start, hold, sleep, now, time_of_day

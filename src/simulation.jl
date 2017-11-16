@@ -45,6 +45,7 @@ type Location
 	stores :: Dict{String, Store}
 	links :: Dict{Location, Bool}
 	resources :: Vector{Resource}
+	js_properties :: Dict{Any, Any}
 
 	function Location(name :: String)
 			loc = new()
@@ -54,9 +55,12 @@ type Location
 			loc.stores["default"] = s
 			loc.resources = Resource[]
 			loc.links = Dict{Location, Bool}()
+
+			loc.js_properties = Dict{Any, Any}()
 			return loc
 	end
 end
+
 
 
 type InputLocation
@@ -180,7 +184,7 @@ function run(sim :: Simulation, until :: Float64)
 		if !proc.scheduled
 			dequeue!(pq)
 
-			@jslog(LOG_MIN, sim, Dict{Any,Any}(
+			@jslog(LOG_MAX, sim, Dict{Any,Any}(
 				"time" => now(sim),
 				"type" => "remove-proc",
 				"id" => object_id(proc)

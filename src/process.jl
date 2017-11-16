@@ -8,7 +8,7 @@ end
 function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
     proc.task = Task( () -> begin
         proc.start_func(proc)
-        @jslog(LOG_MIN, sim, Dict{Any,Any}(
+        @jslog(LOG_MAX, sim, Dict{Any,Any}(
             "time" => now(sim),
             "type" => "remove-proc",
             "id" => string(object_id(proc))
@@ -19,7 +19,7 @@ function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
     sim.process_queue[proc] = sim.time + delay
     proc.scheduled = true
 
-    @jslog(LOG_MIN, sim, Dict{Any,Any}(
+    @jslog(LOG_MAX, sim, Dict{Any,Any}(
         "time" => now(sim),
         "type" => "add-proc",
         "id" => string(object_id(proc)),

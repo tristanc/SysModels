@@ -50,7 +50,7 @@ end
 function add(proc :: Process, resource :: Resource, loc :: Location, store_name :: String = "default")
     push!(loc.resources, resource)
 
-    @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
+    @jslog(LOG_MIN, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "add-resource",
         "resource" => toJSON(resource),
@@ -85,7 +85,7 @@ function remove(proc :: Process, resource :: Resource, loc :: Location, store_na
         error("Trying to remove resource not owned by process.")
     end
 
-    @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
+    @jslog(LOG_MIN, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "remove-resource",
         "id" => string(object_id(resource)),
@@ -112,7 +112,7 @@ function move(proc :: Process, resource :: Resource, from :: Location, to :: Loc
         error("Trying to move resource not owned by process.")
     end
 
-    @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
+    @jslog(LOG_MIN, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "move-resource",
         "id" => string(object_id(resource)),
@@ -151,7 +151,7 @@ function move(proc :: Process, resources :: Vector{Resource}, from :: Location, 
             error("Trying to move resource from wrong location.")
     end
 
-    @iflog(LOG_MAX, begin
+    @iflog(LOG_MIN, begin
         for res in resources
             jslog(proc.simulation, Dict{Any,Any}(
                 "time" => now(proc.simulation),
@@ -170,8 +170,8 @@ end
 
 
 function toJSON(loc :: Location)
-    return Dict{Any,Any}(
+    return merge( Dict{Any,Any}(
         "id" => string(object_id(loc)),
         "name" => loc.name
-    )
+    ), loc.js_properties)
 end

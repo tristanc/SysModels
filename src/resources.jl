@@ -16,7 +16,11 @@ function bytype(t :: Type, count :: Int64 = 1)
     function find_res(resources)
         filtered = filter(a -> isa(a, t), resources)
         if length(filtered) >= count
-            return true, filtered[1:count]
+            if count == 0
+                return true, filterd
+            else
+                return true, filtered[1:count]
+            end
         else
             return false, filtered
         end
