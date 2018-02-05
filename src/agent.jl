@@ -1,5 +1,5 @@
 
-abstract Agent <: Resource
+abstract type Agent <: Resource end
 
 
 type AgentData

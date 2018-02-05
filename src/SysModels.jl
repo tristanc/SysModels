@@ -2,7 +2,8 @@
 
 module SysModels
 
-    import Base.Collections.PriorityQueue, Base.Collections.peek, Base.Collections.dequeue!
+    #import Base.Collections.PriorityQueue, Base.Collections.peek, Base.Collections.dequeue!
+    import DataStructures.PriorityQueue, DataStructures.peek, DataStructures.dequeue!
     import Base.Order
     using JSON
     using Distributions
@@ -19,13 +20,17 @@ module SysModels
 
     jsloglevel = LOG_OFF
 
+    if haskey(ENV, "JSLOGLEVEL")
+        jsloglevel = Int64( parse(ENV["JSLOGLEVEL"]) )
+    end
+
     for x in [1:length(ARGS);]
         if ARGS[x] == "--jslog"
             jsloglevel = Int64( parse(ARGS[x+1]) )
         end
     end
 
-    abstract Resource
+    abstract type Resource end
 
 
 
@@ -47,7 +52,7 @@ module SysModels
     export Simulation, Model, Resource, Process, Location, InputLocation, OutputLocation, Interface, Store
     export Agent, AgentData, get_data
 
-    
+
     export link, enable_link, disable_link
     export move, claim, release, distrib, add, remove, find, flatten, get_store
     export start, hold, sleep, now, time_of_day

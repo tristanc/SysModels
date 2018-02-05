@@ -135,7 +135,7 @@ type Simulation
 		sim = new()
 		sim.time = 0.0
 		sim.model = model
-		sim.process_queue = PriorityQueue{Process, Float64, Order.ForwardOrdering}()
+		sim.process_queue = PriorityQueue{Process, Float64}()
 		#sim.process_queue = PriorityQueue()
 
 		for iface in values(model.interfaces)
