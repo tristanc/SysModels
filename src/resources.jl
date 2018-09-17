@@ -60,15 +60,15 @@ function find(f :: Function, count :: Int64 = 1)
     return find_res
 end
 
-flatten{T}(a::Array{T,1}) = any(map(x->isa(x,Array),a))? flatten(vcat(map(flatten,a)...)): a
-flatten{T}(a::Array{T}) = reshape(a,prod(size(a)))
+flatten(a::Array{T,1}) where T = any(map(x->isa(x,Array),a)) ? flatten(vcat(map(flatten,a)...)) : a
+flatten(a::Array{T}) where T = reshape(a,prod(size(a)))
 flatten(a)=a
 
 function flatten(collection :: Dict{Store, Vector{Resource}})
     flatten(collect(values(collection)))
 end
 
-type ClaimTreeNode
+mutable struct ClaimTreeNode
     leaf :: Bool
     store :: Store
     find_wanted :: Function
@@ -117,7 +117,7 @@ function get_stores_node(node :: ClaimTreeNode)
     end
 end
 
-type ClaimTree
+mutable struct ClaimTree
     head :: ClaimTreeNode
     stores :: Vector{Store}
     proc :: Process
@@ -321,10 +321,12 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
           sleep(tree.proc)
         end
 
+
         #remove from stores' get_queues.
         for store in tree.stores
-            deleteat!(store.get_queue, findin(store.get_queue, [tree]))
+            deleteat!(store.get_queue, findall( fx -> fx == tree, store.get_queue))
         end
+
 
         if length(tree.claimed) > 0
 
@@ -336,15 +338,18 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
 
             append!(tree.proc.claimed_resources, x)
 
+
             #remove taken resources
             for store in keys(tree.claimed)
                 #deleteat!(store.resources, findin(store.resources, tree.claimed[store]))
                 idx = filter(p-> p!= 0, indexin(tree.claimed[store], store.resources))
                 deleteat!(store.resources, idx)
             end
+        
 
             return true, tree.claimed
         else
+
             return false, tree.claimed
         end
 
@@ -367,7 +372,11 @@ macro claim(p, ex, timeout...)
                 arg1 = exp.args[1]
                 arg2 = exp.args[2]
                 arg3 = exp.args[3]
-                return :(ClaimTreeNode(get_store($(esc(arg1)), $(esc(arg3))), $(esc(arg2))))
+                if typeof(arg3) == String
+                    return :(ClaimTreeNode(get_store($(esc(arg1)), $(esc(arg3))), $(esc(arg2))))
+                else
+                    return :(ClaimTreeNode(get_store($(esc(arg1)), "default"), $(esc(arg2)), $(esc(arg3))))
+                end
             end
         elseif exp.head == :(&&) || exp.head == :(||)
             lexp = build_tree(exp.args[1])
@@ -393,7 +402,7 @@ function release(proc :: Process, loc :: Location, resources :: Vector{Resource}
     local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     append!(store.resources, resources)
-    deleteat!(proc.claimed_resources, findin(proc.claimed_resources, resources))
+    deleteat!(proc.claimed_resources, findall( fx -> fx in resources, proc.claimed_resources))
     updated_store(sim, store)
 end
 

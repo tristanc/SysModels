@@ -1,9 +1,9 @@
 
 "Resource representing an ongoing event."
-type Event <: Resource
+mutable struct Event <: Resource
     loc :: Location
     origin :: Process
-    handler :: Nullable{Process}
+    handler :: Union{Process,Nothing}
     seenby :: Vector{ Process }
     data :: Dict{AbstractString, Any}
 end

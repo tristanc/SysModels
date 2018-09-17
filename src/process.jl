@@ -7,12 +7,21 @@ end
 
 function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
     proc.task = Task( () -> begin
-        proc.start_func(proc)
-        @jslog(LOG_MAX, sim, Dict{Any,Any}(
-            "time" => now(sim),
-            "type" => "remove-proc",
-            "id" => string(object_id(proc))
-        ))
+            try
+                proc.start_func(proc)
+                @jslog(LOG_MAX, sim, Dict{Any,Any}(
+                    "time" => now(sim),
+                    "type" => "remove-proc",
+                    "id" => string(object_id(proc))
+                ))
+                yieldto(sim.task)
+            catch e
+                println("ERROR: ", e.msg)
+
+                println( stacktrace( catch_backtrace() ) )
+
+
+            end
         end
     )
     proc.simulation = sim
@@ -43,6 +52,7 @@ function scheduled(proc :: Process)
 end
 
 function hold(proc :: Process, delay :: Float64)
+
     local sim :: Simulation = proc.simulation
     sim.process_queue[proc] = sim.time + delay
     proc.scheduled = true
@@ -54,7 +64,10 @@ function hold(proc :: Process, delay :: Float64)
         "state" => "holding"
     ))
 
-    produce(true)
+
+    yieldto(proc.simulation.task)
+
+    #produce(true)
 end
 
 function sleep(proc :: Process)
@@ -67,7 +80,10 @@ function sleep(proc :: Process)
         "state" => "sleeping"
     ))
 
-    produce(true)
+
+    yieldto(proc.simulation.task)
+
+    #produce(true)
 end
 
 function wake(proc :: Process)

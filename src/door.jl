@@ -1,9 +1,9 @@
 
-type DoorOpen <: Resource
+mutable struct DoorOpen <: Resource
     close_time :: Float64
 end
 
-type Door <: Resource
+mutable struct Door <: Resource
     loc :: Location
     open_res :: DoorOpen
     is_open :: Bool

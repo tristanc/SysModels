@@ -1,7 +1,7 @@
 
 using SysModels
 
-type Widget <: Resource
+struct Widget <: Resource
 end
 
 locA = Location("A")
@@ -13,12 +13,14 @@ w = Widget()
 distrib(w, locA)
 
 function move_widget(proc :: Process)
+
   #claim a Widget
   success, claimed = @claim(proc, (locA, Widget))
 
   widgets = flatten(claimed)
 
   move(proc, widgets, locA, locB)
+
   println("Widget Moved")
   release(proc, locB, widgets)
 end

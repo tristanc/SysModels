@@ -2,7 +2,7 @@
 using SysModels
 
 
-type Widget <: Resource
+struct Widget <: Resource
 end
 
 locA = Location("A")

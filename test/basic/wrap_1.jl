@@ -4,7 +4,7 @@
 using SysModels
 using Distributions
 
-type Widget <: Resource
+mutable struct Widget <: Resource
 end
 
 function create_model()
@@ -42,7 +42,7 @@ function create_model()
 
     while true
       #claim 2 widgets
-      success, claimed = @claim(proc, (locA, Widget))
+      success, claimed = @claim(proc, (locA, Widget, 2))
 
       widgets = flatten(claimed)
 

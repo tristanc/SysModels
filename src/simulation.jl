@@ -1,6 +1,6 @@
 
 
-type Process
+mutable struct Process
 
 	name :: String
 	scheduled :: Bool
@@ -23,7 +23,7 @@ end
 
 
 
-type Store
+mutable struct Store
 	resources :: Vector{Resource}
 	#get_queue :: Vector{ClaimTree}
 	get_queue :: Vector{Any}
@@ -40,7 +40,7 @@ end
 
 #Base.show(io :: IO, s :: Store) = print(io, "Store")
 
-type Location
+mutable struct Location
 	name :: String
 	stores :: Dict{String, Store}
 	links :: Dict{Location, Bool}
@@ -63,7 +63,7 @@ end
 
 
 
-type InputLocation
+mutable struct InputLocation
 	functions :: Dict{Type, Function}
 	env_processes :: Vector{Process}
 
@@ -75,7 +75,7 @@ type InputLocation
 	end
 end
 
-type OutputLocation
+mutable struct OutputLocation
 	functions :: Dict{Type, Function}
 
 	function OutputLocation()
@@ -85,7 +85,7 @@ type OutputLocation
 	end
 end
 
-type Interface
+mutable struct Interface
 	input_locations :: Dict{String, InputLocation}
 	output_locations :: Dict{String, OutputLocation}
 
@@ -97,7 +97,7 @@ type Interface
 	end
 end
 
-type Model
+mutable struct Model
 	interfaces :: Dict{String, Interface}
 	interface_funcs :: Dict{String, Dict{Type, Function}}
 
@@ -124,12 +124,13 @@ type Model
 
 end
 
-type Simulation
+mutable struct Simulation
 	time :: Float64
 	process_queue :: PriorityQueue{Process, Float64}
 	#process_queue :: PriorityQueue
 	model :: Model
 	log_stream :: IOStream
+	task :: Task
 
 	function Simulation(model :: Model)
 		sim = new()
@@ -176,40 +177,60 @@ end
 
 function run(sim :: Simulation, until :: Float64)
 
-	pq = sim.process_queue
 
-	while sim.time <= until && length(pq) > 0
+	function run_task()
 
-		proc, priority = peek(pq)
-		if !proc.scheduled
-			dequeue!(pq)
+		try
 
-			@jslog(LOG_MAX, sim, Dict{Any,Any}(
-				"time" => now(sim),
-				"type" => "remove-proc",
-				"id" => object_id(proc)
-			))
+			pq = sim.process_queue
 
-			continue
+			while sim.time <= until && length(pq) > 0
+
+				proc, priority = peek(pq)
+				if !proc.scheduled
+					dequeue!(pq)
+
+					@jslog(LOG_MAX, sim, Dict{Any,Any}(
+						"time" => now(sim),
+						"type" => "remove-proc",
+						"id" => object_id(proc)
+					))
+
+					continue
+				end
+
+				proc_time = pq[proc]
+				if proc_time <= until
+					dequeue!(pq)
+					sim.time = proc_time
+					proc.scheduled = false
+
+					#println("BEFORE", proc.task)
+					yieldto(proc.task)
+					#println("AFTER", proc.task)
+					#consume(proc.task)
+
+				else
+					break
+				end
+			end
+
+			if sim.time <= until
+				sim.time = until
+			end
+
+		catch e
+			println("ERROR: ", e.msg)
+			println( stacktrace( catch_backtrace() ) )
+
 		end
-		proc_time = pq[proc]
-		if proc_time <= until
-			dequeue!(pq)
-			sim.time = proc_time
-			proc.scheduled = false
 
-			consume(proc.task)
-
-		else
-			break
-		end
 	end
 
-	if sim.time <= until
-		sim.time = until
-	end
-
-	#println("done")
+	sim.task = Task(run_task)
+	#schedule(sim.task)
+	yield(sim.task)
+	println("DONE")
 end
 
 function now(sim :: Simulation)

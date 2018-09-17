@@ -2,7 +2,7 @@
 abstract type Agent <: Resource end
 
 
-type AgentData
+mutable struct AgentData
     name :: String
     carrying :: Location
     data :: Dict{Any, Any}

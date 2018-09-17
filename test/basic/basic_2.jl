@@ -1,7 +1,8 @@
 
 using SysModels
 
-type Widget <: Resource
+
+struct Widget <: Resource
 end
 
 locA = Location("A")
@@ -12,7 +13,8 @@ link(locA, locB)
 function move_widget_A(proc :: Process)
 
   #wait for 12 seconds before doing anything
-  hold(proc, 12seconds)
+
+  SysModels.hold(proc, 12seconds)
 
   #claim a Widget
   success, claimed = @claim(proc, (locA, Widget))
@@ -29,7 +31,9 @@ function move_widget_B(proc :: Process)
 
   while true
     #claim a Widget, with a 5 second timeout
+
     success, claimed = @claim(proc, (locB, Widget), 5seconds)
+
 
     if success
       println("B claimed Widget.")

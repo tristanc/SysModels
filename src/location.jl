@@ -163,7 +163,8 @@ function move(proc :: Process, resources :: Vector{Resource}, from :: Location, 
         end
     end)
 
-    deleteat!(from.resources, findin(from.resources, resources))
+
+    deleteat!(from.resources, findall(x -> x in resources, from.resources))
     append!(to.resources, resources)
 end
 
