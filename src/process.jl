@@ -5,28 +5,39 @@ function start(old_proc :: Process, new_proc :: Process, delay :: Float64 = 0.0)
   start(sim, new_proc, delay)
 end
 
+function wrap_task(sim, :: Simulation, task :: Task)
+    println("waiting")
+    wait(task)
+    #yieldto(sim.task)
+end
+
 function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
     proc.task = Task( () -> begin
-            try
+            #try
                 proc.start_func(proc)
                 @jslog(LOG_MAX, sim, Dict{Any,Any}(
                     "time" => now(sim),
                     "type" => "remove-proc",
                     "id" => string(object_id(proc))
                 ))
-                yieldto(sim.task)
-            catch e
-                println("ERROR: ", e.msg)
+                println("task ending")
+                #yieldto(sim.task, current_task() )
+            #catch e
+            #    error("ERROR: ", e.msg)
 
-                println( stacktrace( catch_backtrace() ) )
+            #    println( stacktrace( catch_backtrace() ) )
 
 
-            end
+            #end
         end
     )
+
     proc.simulation = sim
     sim.process_queue[proc] = sim.time + delay
     proc.scheduled = true
+
+    #schedule( Task( () -> wrap_task(sim, proc.task) ) )
+    #yield()
 
     @jslog(LOG_MAX, sim, Dict{Any,Any}(
         "time" => now(sim),
@@ -35,7 +46,6 @@ function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
         "name" => proc.name,
         "state" => "starting"
     ))
-
 
 end
 

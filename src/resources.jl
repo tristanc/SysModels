@@ -1,13 +1,18 @@
 
 
 function byres(res :: Resource)
+
     function find_res(resources)
-        ix = findfirst(resources, res)
+        println("byres")
+
+        ix = findfirst(x -> x == res, resources)
+
         if ix > 0
             return true, Resource[resources[ix]]
         else
             return false, Resource[]
         end
+
     end
     return find_res
 end
@@ -143,11 +148,14 @@ end
 function satisfied_node(node :: ClaimTreeNode, available :: Dict{Store, Vector{Resource}})
 
     if node.leaf
+
         #this is a leaf node
         avail = available[node.store]
+
         satisfied, used = node.find_wanted(avail)
         used_dict = Dict{Store, Vector{Resource}}()
         used_dict[node.store] = used
+
         return satisfied, used_dict
     else
 
@@ -196,6 +204,7 @@ end
 function satisfied_tree(tree :: ClaimTree, available :: Dict{Store, Vector{Resource}})
 
     satisfied, used = satisfied_node(tree.head, available)
+
     tree.cached = used
 
     if satisfied
@@ -265,6 +274,7 @@ end
 
 
 function check_new_claim(tree :: ClaimTree)
+
     s :: Store = tree.stores[1]
     touched_stores = get_touched_stores(s)
     avail = Dict{Store, Vector{Resource}}()
@@ -282,6 +292,8 @@ function check_new_claim(tree :: ClaimTree)
         end
     end
 
+
+
     return satisfied_tree(tree, avail)
 
 end
@@ -292,9 +304,12 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
         push!(store.get_queue, tree)
     end
 
+
     satisfied, used = check_new_claim(tree)
+    
 
     if satisfied
+
         #remove from get_queues
         for store in tree.stores
             pop!(store.get_queue)
@@ -315,6 +330,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
         return true, used
     else
 
+        println(tree.head.find_wanted)
         if timeout >= 0.0
           hold(tree.proc, timeout)
         else
@@ -345,7 +361,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
                 idx = filter(p-> p!= 0, indexin(tree.claimed[store], store.resources))
                 deleteat!(store.resources, idx)
             end
-        
+
 
             return true, tree.claimed
         else

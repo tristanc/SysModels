@@ -131,6 +131,7 @@ mutable struct Simulation
 	model :: Model
 	log_stream :: IOStream
 	task :: Task
+	starting_tasks :: Vector{Task}
 
 	function Simulation(model :: Model)
 		sim = new()
@@ -205,14 +206,43 @@ function run(sim :: Simulation, until :: Float64)
 					sim.time = proc_time
 					proc.scheduled = false
 
-					#println("BEFORE", proc.task)
+
+					if !istaskstarted(proc.task)
+						end_task = Task( () -> begin
+							try
+								wait(proc.task)
+							catch ex
+								bt = catch_backtrace()
+								println("ERRRROR")
+
+								showerror(stdout, ex)
+								for sf in stacktrace(bt)
+									println(sf)
+								end
+							end
+							println("TASK ENDED")
+							yieldto(sim.task)
+						end)
+						yield(end_task)
+					end
+
 					yieldto(proc.task)
+
+					# if finished_task != nothing
+					# 	println("yarr")
+					# 	#schedule( @task yieldto(finished_task))
+					# 	yield(finished_task)
+					# 	wait(finished_task)
+					# 	println("yarr2")
+					# end
+
 					#println("AFTER", proc.task)
 					#consume(proc.task)
 
 				else
 					break
 				end
+
 			end
 
 			if sim.time <= until
@@ -228,8 +258,9 @@ function run(sim :: Simulation, until :: Float64)
 	end
 
 	sim.task = Task(run_task)
-	#schedule(sim.task)
-	yield(sim.task)
+	schedule(sim.task)
+	#yield(sim.task)
+	wait(sim.task)
 	println("DONE")
 end
 
