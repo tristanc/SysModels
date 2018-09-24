@@ -206,38 +206,35 @@ function run(sim :: Simulation, until :: Float64)
 					sim.time = proc_time
 					proc.scheduled = false
 
-
+					# if we are just starting this task, we need to set up a
+					# task to wait() for it.  This allows us to catch errors
+					# as otherwise tasks will fail silently.
 					if !istaskstarted(proc.task)
 						end_task = Task( () -> begin
 							try
 								wait(proc.task)
 							catch ex
 								bt = catch_backtrace()
-								println("ERRRROR")
+								println("ERROR")
 
 								showerror(stdout, ex)
+								println()
 								for sf in stacktrace(bt)
 									println(sf)
 								end
+
+								# stop execution
+								exit(1)
+
 							end
-							println("TASK ENDED")
+							# task has ended
 							yieldto(sim.task)
 						end)
 						yield(end_task)
 					end
 
+					# switch to the task
 					yieldto(proc.task)
-
-					# if finished_task != nothing
-					# 	println("yarr")
-					# 	#schedule( @task yieldto(finished_task))
-					# 	yield(finished_task)
-					# 	wait(finished_task)
-					# 	println("yarr2")
-					# end
-
-					#println("AFTER", proc.task)
-					#consume(proc.task)
 
 				else
 					break

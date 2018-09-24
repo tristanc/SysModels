@@ -92,8 +92,8 @@ function remove(proc :: Process, resource :: Resource, loc :: Location, store_na
         "location" => string(object_id(loc))
     ))
 
-    deleteat!(loc.resources, findfirst(loc.resources, resource))
-    deleteat!(proc.claimed_resources, findfirst(proc.claimed_resources, resource))
+    deleteat!(loc.resources, findfirst(x -> x == resource, loc.resources))
+    deleteat!(proc.claimed_resources, findfirst(x -> x == resource, proc.claimed_resources))
 end
 
 function remove(proc :: Process, resources :: Vector{Resource}, loc :: Location, store_name = "default")
@@ -120,7 +120,7 @@ function move(proc :: Process, resource :: Resource, from :: Location, to :: Loc
         "to" => string(object_id(to))
     ))
 
-    deleteat!(from.resources, findfirst(from.resources, resource))
+    deleteat!(from.resources, findfirst(x -> x==resource, from.resources))
     push!(to.resources, resource)
 end
 

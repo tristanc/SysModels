@@ -3,8 +3,6 @@
 function byres(res :: Resource)
 
     function find_res(resources)
-        println("byres")
-
         ix = findfirst(x -> x == res, resources)
 
         if ix > 0
@@ -22,7 +20,7 @@ function bytype(t :: Type, count :: Int64 = 1)
         filtered = filter(a -> isa(a, t), resources)
         if length(filtered) >= count
             if count == 0
-                return true, filterd
+                return true, filtered
             else
                 return true, filtered[1:count]
             end
@@ -306,7 +304,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
 
 
     satisfied, used = check_new_claim(tree)
-    
+
 
     if satisfied
 
@@ -314,7 +312,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
         for store in tree.stores
             pop!(store.get_queue)
             if haskey(used, store)
-                idx = filter(p-> p!= 0, indexin(used[store], store.resources))
+                idx = filter(p-> p!= nothing, indexin(used[store], store.resources))
                 deleteat!(store.resources, idx)
             end
         end
@@ -330,7 +328,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
         return true, used
     else
 
-        println(tree.head.find_wanted)
+
         if timeout >= 0.0
           hold(tree.proc, timeout)
         else
@@ -358,7 +356,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
             #remove taken resources
             for store in keys(tree.claimed)
                 #deleteat!(store.resources, findin(store.resources, tree.claimed[store]))
-                idx = filter(p-> p!= 0, indexin(tree.claimed[store], store.resources))
+                idx = filter(p-> p!= nothing, indexin(tree.claimed[store], store.resources))
                 deleteat!(store.resources, idx)
             end
 
@@ -426,7 +424,7 @@ function release(proc :: Process, loc :: Location, resource :: Resource, store_n
     local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     push!(store.resources, resource)
-    deleteat!(proc.claimed_resources, findfirst(proc.claimed_resources, resource))
+    deleteat!(proc.claimed_resources, findfirst(x -> x == resource, proc.claimed_resources))
     updated_store(sim, store)
 end
 
