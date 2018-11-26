@@ -3,9 +3,10 @@
 function byres(res :: Resource)
 
     function find_res(resources)
+        
         ix = findfirst(x -> x == res, resources)
 
-        if ix > 0
+        if ix != nothing && ix > 0
             return true, Resource[resources[ix]]
         else
             return false, Resource[]
@@ -18,7 +19,7 @@ end
 function bytype(t :: Type, count :: Int64 = 1)
     function find_res(resources)
         filtered = filter(a -> isa(a, t), resources)
-        if length(filtered) >= count
+        if length(filtered) >= count && length(filtered) > 0
             if count == 0
                 return true, filtered
             else
