@@ -65,7 +65,7 @@ end
 function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: String = "default")
 
     #call normal add function
-    invoke(add, (Process, Resource, Location, String), proc, agent, loc, store_name)
+    invoke(add, Tuple{Process, Resource, Location, String}, proc, agent, loc, store_name)
 
     #creates a link from what the agent is carrying to the location the agent is in
     carrying = get_data(agent).carrying
@@ -127,7 +127,7 @@ end
 function move(proc :: Process, agent :: Agent, from :: Location, to :: Location)
 
     # call the normal move function
-    invoke(move, (Process, Resource, Location, Location), proc, agent, from, to)
+    invoke(move, Tuple{Process, Resource, Location, Location}, proc, agent, from, to)
 
     #create links to agent's locations
     #and remove links from last location

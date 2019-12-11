@@ -3,7 +3,7 @@
 #
 # include("shared-resources.jl")
 
-type Group
+mutable struct Group
     name :: String
     share :: Location
     members :: Vector{Employee}
@@ -17,7 +17,7 @@ type Group
     end
 end
 
-type AccessProblem <: Resource
+mutable struct AccessProblem <: Resource
     group :: Group
     employee :: Employee
 end
@@ -232,7 +232,7 @@ function create_document_sharing_model()
             hold(proc, 30seconds)
 
             #how many disks are lying around?
-            num_media = length( Base.find( (r) -> isa(r,PortableMedia), store.resources))
+            num_media = length( Base.findall( (r) -> isa(r,PortableMedia), store.resources))
             if rand() < num_media / (total_employees - checked)
                 #found a disk lying around, pick it up
                 success, claimed = @claim(proc, (loc_office, PortableMedia))

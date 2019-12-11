@@ -9,7 +9,7 @@
 # end
 #TailgateSignal(agent :: Agent) = TailgateSignal(agent, false)
 
-type Receptionist <: Resource
+struct Receptionist <: Resource
 end
 
 

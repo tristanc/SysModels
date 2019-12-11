@@ -9,7 +9,7 @@ mutable struct Event <: Resource
 end
 
 Event(loc :: Location, proc :: Process) = Event(loc, proc, Nullable{Process}(), Process[], Dict{AbstractString, Any}())
-Event(loc :: Location, proc :: Process, data :: Dict{AbstractString, Any}) = Event(loc, proc, Nullable{Process}(), Process[], data)
+Event(loc :: Location, proc :: Process, data :: Dict{AbstractString, Any}) = Event(loc, proc, nothing, Process[], data)
 
 "Ignore an event and add proc to this event's seenby vector."
 function ignore(e :: Event, proc :: Process)
@@ -28,7 +28,7 @@ end
 
 
 function handle!(e :: Event, proc :: Process)
-    e.handler = Nullable{Process}(proc)
+    e.handler = proc
     push!(e.seenby, proc)
     release(proc, e.loc, e)
     return nothing
@@ -45,7 +45,7 @@ function handler(e :: Event)
 end
 
 function handled(e :: Event)
-    return !isnull(e.handler)
+    return e.handler != nothing
 end
 
 function observe(loc :: Location, proc :: Process, timeout = 0.0, conditions = res->true)

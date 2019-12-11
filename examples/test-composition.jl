@@ -6,7 +6,9 @@ import SysModels.find
 
 #ret = @parallel (combine) for i = 1 : 1
 
-for i = 1:1
+
+
+#for i = 1:1
 
 m1 = create_device_loss_model()
 m2 = create_tailgating_model()
@@ -79,18 +81,18 @@ delete!(m.data, "employees")
 
 data_to_vector(m)
 
-end
-
-#for (k,v) in m.data
-#        println("$k: $v")
 #end
+
+for (k,v) in m.data
+        println("$k: $v")
+end
 
 #println(ret)
 
-A = Array(Any, 1, length(data_names))
-for i = 1 : length(data_names)
-    A[1,i] = data_names[i]
-end
-A = vcat(A, ret)
+#A = Array(Any, 1, length(data_names))
+#for i = 1 : length(data_names)
+#    A[1,i] = data_names[i]
+#end
+#A = vcat(A, ret)
 
-writecsv("/tmp/output.csv", A)
+#writecsv("/tmp/output.csv", A)

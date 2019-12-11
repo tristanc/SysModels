@@ -1,33 +1,33 @@
 
 
-type Information <: Resource
+mutable struct Information <: Resource
     allowed_access :: Vector{String}
 end
 
-type Computer <: Resource
+mutable struct Computer <: Resource
     contents :: Location
 end
 
 Computer(name :: String) = Computer(Location(name))
 
-type PortableMedia <: Resource
+mutable struct PortableMedia <: Resource
     contents :: Location
 end
 
 PortableMedia(name :: String) = PortableMedia(Location(name))
 
-type Employee <: Agent
+mutable struct Employee <: Agent
     data :: AgentData
 end
 Employee(name :: String) = Employee(AgentData(name))
 
 
-type Leader <: Agent
+mutable struct Leader <: Agent
     data :: AgentData
 end
 Leader(name ::String) = Leader(AgentData(name))
 
-type Attacker <: Agent
+mutable struct Attacker <: Agent
     data :: AgentData
 end
 Attacker(name ::String) = Attacker(AgentData(name))
