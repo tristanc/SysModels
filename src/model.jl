@@ -6,6 +6,10 @@ function get_location(model :: Model, loc :: String)
 	return model.locations[loc]
 end
 
+function get_location(proc :: Process, loc :: String)
+	get_location(proc.simulation.model, loc)
+end
+
 function get_funcs(model :: Model, name :: String)
 	funcs = model.interface_funcs[name]
 	return funcs
