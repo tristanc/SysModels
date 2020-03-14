@@ -59,7 +59,7 @@ function add(proc :: Process, resource :: Resource, loc :: Location, store_name 
 
     s = loc.stores[store_name]
     push!(s.resources, resource)
-    updated_store(proc.simulation, s)
+    updated_store(s)
 end
 
 function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: String = "default")

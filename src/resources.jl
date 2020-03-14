@@ -228,7 +228,7 @@ function get_touched_stores(store :: Store, found :: Vector{Store} = Store[])
 end
 
 
-function updated_store(sim :: Simulation, store :: Store)
+function updated_store(store :: Store)
     touched = get_touched_stores(store)
     avail = Dict{Store, Vector{Resource}}()
 
@@ -302,6 +302,8 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0, priority :: Float64
     for store in tree.stores
         #push!(store.get_queue, tree)
         enqueue!(store.get_queue, tree, priority)
+
+        # TODO make sure switch to PQ doesn't mess everything up
     end
 
 
@@ -417,19 +419,19 @@ macro claim(p, ex, timeout...)
 end
 
 function release(proc :: Process, loc :: Location, resources :: Vector{Resource}, store_name :: String = "default")
-    local sim :: Simulation = proc.simulation
+    #local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     append!(store.resources, resources)
     deleteat!(proc.claimed_resources, findall( fx -> fx in resources, proc.claimed_resources))
-    updated_store(sim, store)
+    updated_store( store)
 end
 
 function release(proc :: Process, loc :: Location, resource :: Resource, store_name :: String = "default")
-    local sim :: Simulation = proc.simulation
+    #local sim :: Simulation = proc.simulation
     store = loc.stores[store_name]
     push!(store.resources, resource)
     deleteat!(proc.claimed_resources, findfirst(x -> x == resource, proc.claimed_resources))
-    updated_store(sim, store)
+    updated_store( store)
 end
 
 
