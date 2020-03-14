@@ -3,7 +3,7 @@
 function byres(res :: Resource)
 
     function find_res(resources)
-        
+
         ix = findfirst(x -> x == res, resources)
 
         if ix != nothing && ix > 0
@@ -217,7 +217,7 @@ end
 
 function get_touched_stores(store :: Store, found :: Vector{Store} = Store[])
     push!(found, store)
-    for t in store.get_queue
+    for t in keys(store.get_queue)
         for ts in t.stores
             if !in(ts, found)
                 get_touched_stores(ts, found)
@@ -237,7 +237,7 @@ function updated_store(sim :: Simulation, store :: Store)
     end
 
     #now go through trees in order
-    for tree in store.get_queue
+    for tree in keys(store.get_queue)
 
         #in each of the other stores touched by this tree
         #remove the cached resources from avail for
@@ -247,11 +247,11 @@ function updated_store(sim :: Simulation, store :: Store)
                 continue
             end
 
-            for other_tree in other_store.get_queue
+            for other_tree in keys(other_store.get_queue)
                 if other_tree == tree
                     break
                 end
-                if !in(other_tree, store.get_queue)
+                if !in(other_tree, keys(store.get_queue))
                     for k in keys(other_tree.cached)
                         avail[k] = setdiff(get(avail, k, Resource[]), other_tree.cached[k])
                     end
@@ -283,7 +283,7 @@ function check_new_claim(tree :: ClaimTree)
     end
 
     for store in tree.stores
-        for other_tree in store.get_queue
+        for other_tree in keys(store.get_queue)
             if other_tree == tree
                 break
             end
@@ -297,10 +297,11 @@ function check_new_claim(tree :: ClaimTree)
 
 end
 
-function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
+function claim(tree :: ClaimTree, timeout :: Float64 = -1.0, priority :: Float64 = 100.0 )
 
     for store in tree.stores
-        push!(store.get_queue, tree)
+        #push!(store.get_queue, tree)
+        enqueue!(store.get_queue, tree, priority)
     end
 
 
@@ -311,7 +312,8 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
 
         #remove from get_queues
         for store in tree.stores
-            pop!(store.get_queue)
+            #pop!(store.get_queue)
+            delete!(store.get_queue, tree)
             if haskey(used, store)
                 idx = filter(p-> p!= nothing, indexin(used[store], store.resources))
                 deleteat!(store.resources, idx)
@@ -339,7 +341,8 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 )
 
         #remove from stores' get_queues.
         for store in tree.stores
-            deleteat!(store.get_queue, findall( fx -> fx == tree, store.get_queue))
+            #deleteat!(store.get_queue, findall( fx -> fx == tree, store.get_queue))
+            delete!(store.get_queue, tree)
         end
 
 

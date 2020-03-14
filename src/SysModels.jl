@@ -3,7 +3,7 @@
 module SysModels
 
     #import Base.Collections.PriorityQueue, Base.Collections.peek, Base.Collections.dequeue!
-    import DataStructures.PriorityQueue, DataStructures.peek, DataStructures.dequeue!
+    import DataStructures.PriorityQueue, DataStructures.peek, DataStructures.dequeue!, DataStructures.enqueue!
     import Base.Order
     using JSON
     using Distributions

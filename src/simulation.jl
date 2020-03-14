@@ -26,14 +26,15 @@ end
 mutable struct Store
 	resources :: Vector{Resource}
 	#get_queue :: Vector{ClaimTree}
-	get_queue :: Vector{Any}
-	#taken :: Dict{Process, Vector{Resource}}
+	#get_queue :: Vector{Any}
+	get_queue :: PriorityQueue{Any, Float64}
 
 	function Store()
 		s = new()
 		s.resources = Resource[]
-		s.get_queue = []
-		#s.taken = Dict{Process, Vector{Resource}}()
+		#s.get_queue = []
+		s.get_queue = PriorityQueue()
+		
 		return s
 	end
 end
