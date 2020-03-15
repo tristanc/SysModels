@@ -54,7 +54,7 @@ module SysModels
 
 
     export link, enable_link, disable_link
-    export move, claim, release, distrib, add, remove, find, flatten, get_store
+    export move, claim, release, distrib, add, remove, find, flatten, get_store, changed_property
     export start, hold, sleep, now, time_of_day
     export get_location, get_func, get_funcs, get_model
     export run, compose

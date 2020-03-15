@@ -16,6 +16,22 @@ function byres(res :: Resource)
     return find_res
 end
 
+function byres(res :: Vector{Resource})
+
+    function find_res(resources :: Vector{Resource})
+
+        isect = intersect(res, resources)
+
+        if length(isect) == length(res)
+            return true, res
+        else
+            return false, isect
+        end
+
+    end
+    return find_res
+end
+
 function bytype(t :: Type, count :: Int64 = 1)
     function find_res(resources)
         filtered = filter(a -> isa(a, t), resources)
@@ -89,6 +105,10 @@ mutable struct ClaimTreeNode
 
     function ClaimTreeNode(store :: Store, resource :: Resource)
         return ClaimTreeNode(store, byres(resource))
+    end
+
+    function ClaimTreeNode(store :: Store, resources :: Vector{Resource})
+        return ClaimTreeNode(store, byres(resources))
     end
 
     function ClaimTreeNode(store :: Store, t :: Type)
@@ -215,6 +235,8 @@ function satisfied_tree(tree :: ClaimTree, available :: Dict{Store, Vector{Resou
 end
 
 
+
+
 function get_touched_stores(store :: Store, found :: Vector{Store} = Store[])
     push!(found, store)
     for t in keys(store.get_queue)
@@ -272,6 +294,8 @@ function updated_store(store :: Store)
 end
 
 
+
+
 function check_new_claim(tree :: ClaimTree)
 
     s :: Store = tree.stores[1]
@@ -291,13 +315,28 @@ function check_new_claim(tree :: ClaimTree)
         end
     end
 
-
-
     return satisfied_tree(tree, avail)
 
 end
 
-function claim(tree :: ClaimTree, timeout :: Float64 = -1.0, priority :: Float64 = 100.0 )
+function insert_priority(tree :: ClaimTree)
+    s :: Store = tree.stores[1]
+    touched_stores = get_touched_stores(s)
+    avail = Dict{Store, Vector{Resource}}()
+
+    touched_trees = []
+
+    for ts in touched_stores
+        append!(touched_trees, keys(store.get_queue))
+    end
+
+    for t in unique!(touched_trees)
+        check_new_claim(t)
+    end
+
+end
+
+function claim(tree :: ClaimTree, timeout :: Float64 = -1.0 ; priority :: Float64 = 100.0 )
 
     for store in tree.stores
         #push!(store.get_queue, tree)
@@ -309,6 +348,16 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0, priority :: Float64
 
     satisfied, used = check_new_claim(tree)
 
+    if priority < 100
+        insert_priority(tree)
+    end
+    # for store in tree.stores
+    #     if priority < maximum(values(store.get_queue))
+    #         insert_priority(tree)
+    #         break
+    #     end
+    # end
+
 
     if satisfied
 
@@ -318,6 +367,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0, priority :: Float64
             delete!(store.get_queue, tree)
             if haskey(used, store)
                 idx = filter(p-> p!= nothing, indexin(used[store], store.resources))
+                sort!(idx)
                 deleteat!(store.resources, idx)
             end
         end
@@ -363,6 +413,7 @@ function claim(tree :: ClaimTree, timeout :: Float64 = -1.0, priority :: Float64
             for store in keys(tree.claimed)
                 #deleteat!(store.resources, findin(store.resources, tree.claimed[store]))
                 idx = filter(p-> p!= nothing, indexin(tree.claimed[store], store.resources))
+                sort!(idx)
                 deleteat!(store.resources, idx)
             end
 

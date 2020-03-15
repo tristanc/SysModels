@@ -47,6 +47,13 @@ function distrib(resources :: Vector{Resource}, loc :: Location, store_name = "d
     append!(s.resources, resources)
 end
 
+#if you change a property of a resource (when process does not own it) you need to
+#updated the store in case any processes are trying to filter on that property
+function changed_property(proc, loc :: Location, store_name :: String = "default")
+    s =loc.stores[store_name]
+    updated_store(s)
+end
+
 function add(proc :: Process, resource :: Resource, loc :: Location, store_name :: String = "default")
     push!(loc.resources, resource)
 
@@ -61,6 +68,9 @@ function add(proc :: Process, resource :: Resource, loc :: Location, store_name 
     push!(s.resources, resource)
     updated_store(s)
 end
+function add(proc :: Process, loc :: Location, resource :: Resource, store_name :: String = "default")
+    add(proc, resource, loc, store_name)
+end
 
 function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: String = "default")
 
@@ -72,6 +82,7 @@ function add(proc :: Process, agent :: Agent, loc :: Location, store_name :: Str
     link(loc, carrying)
 
 end
+
 
 function add(proc :: Process, resources :: Vector{Resource}, loc :: Location, store_name :: String = "default")
     for r in resources
@@ -94,6 +105,9 @@ function remove(proc :: Process, resource :: Resource, loc :: Location, store_na
 
     deleteat!(loc.resources, findfirst(x -> x == resource, loc.resources))
     deleteat!(proc.claimed_resources, findfirst(x -> x == resource, proc.claimed_resources))
+end
+function remove(proc :: Process, loc :: Location, resource :: Resource, store_name = "default")
+    remove(proc,resource,loc,store_name)
 end
 
 function remove(proc :: Process, resources :: Vector{Resource}, loc :: Location, store_name = "default")
