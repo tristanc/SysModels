@@ -74,7 +74,7 @@ function create_document_sharing_model()
                 @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
                     "time" => now(proc.simulation),
                     "type" => "choice",
-                    "id" => string(object_id(leader)),
+                    "id" => string(objectid(leader)),
                     "value" => string(choice)
                 ))
 
@@ -158,7 +158,7 @@ function create_document_sharing_model()
                 @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
                     "time" => now(proc.simulation),
                     "type" => "event",
-                    "id" => string(object_id(employee)),
+                    "id" => string(objectid(employee)),
                     "value" => "Can't access group share."
                 ))
 

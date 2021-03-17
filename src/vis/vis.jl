@@ -12,8 +12,8 @@ function jslog_init(sim, stream)
 
             for (dest, enabled) in l.links
                 push!(links, Dict{Any,Any}(
-                    "from" => string(object_id(l)),
-                    "to" => string(object_id(dest)),
+                    "from" => string(objectid(l)),
+                    "to" => string(objectid(dest)),
                     "enabled" => enabled
                 ))
             end
@@ -55,7 +55,7 @@ end
 
 
 macro iflog(level, code)
-    if eval(level) > jsloglevel
+    if eval(level) > jsloglevel 
         return nothing
     else
         return quote

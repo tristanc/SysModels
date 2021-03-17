@@ -18,21 +18,17 @@ module SysModels
     const LOG_MIN = 1
     const LOG_MAX = 10
 
-    jsloglevel = LOG_OFF
+    tmp_jsloglevel = LOG_OFF
 
     if haskey(ENV, "JSLOGLEVEL")
-        jsloglevel = Int64( parse(ENV["JSLOGLEVEL"]) )
+        global tmp_jsloglevel = parse(Int64, ENV["JSLOGLEVEL"]) 
     end
 
-    for x in [1:length(ARGS);]
-        if ARGS[x] == "--jslog"
-            jsloglevel = Int64( parse(ARGS[x+1]) )
-        end
-    end
+    const jsloglevel = tmp_jsloglevel
 
+    println(jsloglevel)
+    
     abstract type Resource end
-
-
 
 
     include("vis/vis.jl")
@@ -54,7 +50,7 @@ module SysModels
 
 
     export link, enable_link, disable_link
-    export move, claim, release, distrib, add, remove, find, flatten, get_store, changed_property
+    export move, claim, release, distrib, add, remove, find, flatten, get_store, create_store, changed_property
     export start, hold, sleep, now, time_of_day
     export get_location, get_func, get_funcs, get_model
     export run, compose

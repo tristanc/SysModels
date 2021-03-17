@@ -18,7 +18,7 @@ function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
                 @jslog(LOG_MAX, sim, Dict{Any,Any}(
                     "time" => now(sim),
                     "type" => "remove-proc",
-                    "id" => string(object_id(proc))
+                    "id" => string(objectid(proc))
                 ))
                 
         end
@@ -34,7 +34,7 @@ function start(sim :: Simulation, proc :: Process, delay :: Float64 = 0.0)
     @jslog(LOG_MAX, sim, Dict{Any,Any}(
         "time" => now(sim),
         "type" => "add-proc",
-        "id" => string(object_id(proc)),
+        "id" => string(objectid(proc)),
         "name" => proc.name,
         "state" => "starting"
     ))
@@ -62,7 +62,7 @@ function hold(proc :: Process, delay :: Float64)
     @jslog(LOG_MAX, sim, Dict{Any,Any}(
         "time" => now(sim),
         "type" => "update-proc",
-        "id" => string(object_id(proc)),
+        "id" => string(objectid(proc)),
         "state" => "holding"
     ))
 
@@ -78,7 +78,7 @@ function sleep(proc :: Process)
     @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "update-proc",
-        "id" => string(object_id(proc)),
+        "id" => string(objectid(proc)),
         "state" => "sleeping"
     ))
 
@@ -96,7 +96,7 @@ function wake(proc :: Process)
     @jslog(LOG_MAX, sim, Dict{Any,Any}(
         "time" => now(sim),
         "type" => "update-proc",
-        "id" => string(object_id(proc)),
+        "id" => string(objectid(proc)),
         "state" => "waking"
     ))
 
@@ -108,7 +108,7 @@ function cancel(proc :: Process)
     @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "update-proc",
-        "id" => string(object_id(proc)),
+        "id" => string(objectid(proc)),
         "state" => "cancelled"
     ))
 

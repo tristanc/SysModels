@@ -3,6 +3,12 @@ function get_store(loc :: Location, store_name :: String = "default")
     return loc.stores[store_name]
 end
 
+function create_store(loc:: Location, store_name :: String)
+    if !haskey(loc.stores, store_name)
+        loc.stores[store_name] = Store()
+    end
+end
+
 function single_link(from :: Location, to :: Location, enabled :: Bool = true)
     from.links[to] = enabled
 end
@@ -33,14 +39,14 @@ function move_allowed(from :: Location, to :: Location)
     return get(from.links, to, false)
 end
 
-function distrib(resource :: Resource, loc :: Location, store_name = "default")
+function distrib(resource :: Resource, loc :: Location, store_name :: String = "default")
     push!(loc.resources, resource)
 
     s = loc.stores[store_name]
     push!(s.resources, resource)
 end
 
-function distrib(resources :: Vector{Resource}, loc :: Location, store_name = "default")
+function distrib(resources :: Vector{Resource}, loc :: Location, store_name :: String = "default")
     append!(loc.resources, resources)
 
     s = loc.stores[store_name]
@@ -61,7 +67,7 @@ function add(proc :: Process, resource :: Resource, loc :: Location, store_name 
         "time" => now(proc.simulation),
         "type" => "add-resource",
         "resource" => toJSON(resource),
-        "location" => string(object_id(loc))
+        "location" => string(objectid(loc))
     ))
 
     s = loc.stores[store_name]
@@ -99,8 +105,8 @@ function remove(proc :: Process, resource :: Resource, loc :: Location, store_na
     @jslog(LOG_MIN, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "remove-resource",
-        "id" => string(object_id(resource)),
-        "location" => string(object_id(loc))
+        "id" => string(objectid(resource)),
+        "location" => string(objectid(loc))
     ))
 
     deleteat!(loc.resources, findfirst(x -> x == resource, loc.resources))
@@ -129,9 +135,9 @@ function move(proc :: Process, resource :: Resource, from :: Location, to :: Loc
     @jslog(LOG_MIN, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "move-resource",
-        "id" => string(object_id(resource)),
-        "from" => string(object_id(from)),
-        "to" => string(object_id(to))
+        "id" => string(objectid(resource)),
+        "from" => string(objectid(from)),
+        "to" => string(objectid(to))
     ))
 
     deleteat!(from.resources, findfirst(x -> x==resource, from.resources))
@@ -170,9 +176,9 @@ function move(proc :: Process, resources :: Vector{Resource}, from :: Location, 
             jslog(proc.simulation, Dict{Any,Any}(
                 "time" => now(proc.simulation),
                 "type" => "move-resource",
-                "id" => string(object_id(res)),
-                "from" => string(object_id(from)),
-                "to" => string(object_id(to))
+                "id" => string(objectid(res)),
+                "from" => string(objectid(from)),
+                "to" => string(objectid(to))
             ))
         end
     end)
@@ -186,7 +192,7 @@ end
 
 function toJSON(loc :: Location)
     return merge( Dict{Any,Any}(
-        "id" => string(object_id(loc)),
+        "id" => string(objectid(loc)),
         "name" => loc.name
     ), loc.js_properties)
 end

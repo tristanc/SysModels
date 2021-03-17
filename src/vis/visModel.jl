@@ -1,5 +1,5 @@
 
-type VisModel
+mutable struct VisModel
 
     #param name + default value
     params :: Dict{String, String}

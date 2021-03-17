@@ -88,7 +88,7 @@ function create_tailgating_model()
         @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
             "time" => now(proc.simulation),
             "type" => "event",
-            "id" => string(object_id(agent)),
+            "id" => string(objectid(agent)),
             "value" => "Observed tailgating."
         ))
 
@@ -100,7 +100,7 @@ function create_tailgating_model()
         @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
             "time" => now(proc.simulation),
             "type" => "choice",
-            "id" => string(object_id(agent)),
+            "id" => string(objectid(agent)),
             "value" => string(choice)
         ))
 
@@ -140,14 +140,14 @@ function create_tailgating_model()
     @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "event",
-        "id" => string(object_id(agent)),
+        "id" => string(objectid(agent)),
         "value" => "Tailgated."
     ))
 
     @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
         "time" => now(proc.simulation),
         "type" => "change-attributes",
-        "id" => string(object_id(agent)),
+        "id" => string(objectid(agent)),
         "style" => Dict{Any,Any}( "fill" => "#f00"),
         "attr" => Dict{Any,Any}()
     ))
@@ -179,7 +179,7 @@ function create_tailgating_model()
         @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
             "time" => now(proc.simulation),
             "type" => "change-attributes",
-            "id" => string(object_id(agent)),
+            "id" => string(objectid(agent)),
             "style" => Dict{Any,Any}( "fill" => "yellow"),
             "attr" => Dict{Any,Any}()
         ))
@@ -236,7 +236,7 @@ function create_tailgating_model()
       @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
           "time" => now(proc.simulation),
           "type" => "event",
-          "id" => string(object_id(agent)),
+          "id" => string(objectid(agent)),
           "value" => "Forgot card."
       ))
 
@@ -258,7 +258,7 @@ function create_tailgating_model()
         @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
             "time" => now(proc.simulation),
             "type" => "choice",
-            "id" => string(object_id(agent)),
+            "id" => string(objectid(agent)),
             "value" => string(choice)
         ))
 
@@ -268,7 +268,7 @@ function create_tailgating_model()
           @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
               "time" => now(proc.simulation),
               "type" => "change-attributes",
-              "id" => string(object_id(agent)),
+              "id" => string(objectid(agent)),
               "style" => Dict{Any,Any}( "fill" => "#0f0"),
               "attr" => Dict{Any,Any}()
           ))
@@ -343,14 +343,14 @@ function create_tailgating_model()
       @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
           "time" => now(proc.simulation),
           "type" => "event",
-          "id" => string(object_id(agent)),
+          "id" => string(objectid(agent)),
           "value" => "Tailgated."
       ))
 
       @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
           "time" => now(proc.simulation),
           "type" => "change-attributes",
-          "id" => string(object_id(agent)),
+          "id" => string(objectid(agent)),
           "style" => Dict{Any,Any}( "fill" => "#f00"),
           "attr" => Dict{Any,Any}()
       ))
@@ -380,7 +380,7 @@ function create_tailgating_model()
           @jslog(LOG_MAX, proc.simulation, Dict{Any,Any}(
               "time" => now(proc.simulation),
               "type" => "change-attributes",
-              "id" => string(object_id(agent)),
+              "id" => string(objectid(agent)),
               "style" => Dict{Any,Any}( "fill" => "yellow"),
               "attr" => Dict{Any,Any}()
           ))

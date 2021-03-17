@@ -14,9 +14,9 @@ get_data(agent :: Agent) = agent.data
 
 function toJSON(agent :: Agent)
     return Dict{Any,Any}(
-        "id" => string(object_id(agent)),
+        "id" => string(objectid(agent)),
         "type" => string(typeof(agent)),
         "name" => agent.data.name,
-        "carrying" => string(object_id(agent.data))
+        "carrying" => string(objectid(agent.data))
     )
 end

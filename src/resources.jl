@@ -488,7 +488,7 @@ end
 
 function toJSON(resource :: Resource)
     return Dict{Any,Any}(
-        "id" => string(object_id(resource)),
+        "id" => string(objectid(resource)),
         "type" => string(typeof(resource))
     )
 end

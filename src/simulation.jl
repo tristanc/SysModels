@@ -130,7 +130,7 @@ mutable struct Simulation
 	process_queue :: PriorityQueue{Process, Float64}
 	#process_queue :: PriorityQueue
 	model :: Model
-	log_stream :: IOStream
+	log_stream
 	task :: Task
 	starting_tasks :: Vector{Task}
 
@@ -195,7 +195,7 @@ function run(sim :: Simulation, until :: Float64)
 					@jslog(LOG_MAX, sim, Dict{Any,Any}(
 						"time" => now(sim),
 						"type" => "remove-proc",
-						"id" => object_id(proc)
+						"id" => objectid(proc)
 					))
 
 					continue
