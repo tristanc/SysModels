@@ -2,13 +2,14 @@
 
 This is a Julia package for creating Systems Models.
 
-It requires Julia 0.5 or 0.6.
+It requires Julia 1.5+.
 
-You can install it from the julia shell:
+Clone this repository to your system and 'develop' it from the julia shell.  (Press ']' to enter the Pkg prompt)
 
 ```julia
-julia> Pkg.clone("https://github.com/tristanc/SysModels.git")
+(@v1.5) pkg> develop /path/to/SysModels
 ```
+
 
 There are some small examples in the test/ directory, and some larger ones,
 based on the code used in some of the papers below, in the examples/ folder.
