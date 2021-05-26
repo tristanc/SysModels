@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="c3.css" rel="stylesheet" type="text/css">
+<style>
+
+rect {
+  fill: none;
+  pointer-events: all;
+}
+
+.node {
+  fill: #000;
+}
+
+.cursor {
+  fill: none;
+  stroke: brown;
+  pointer-events: none;
+}
+
+.link {
+  stroke: #999;
+}
+
+.location {
+  stroke: #444;
+  fill: #eee;
+}
+
+.resource {
+    fill: #77e;
+    opacity: 0.7;
+}
+
+#progress {
+    fill: #00f;
+}
+
+.message {
+    fill: #111;
+    stroke: #666;
+}
+
+.header {
+    background-color: #fff;
+}
+
+.header h1 {
+    color: #000;
+    font-family: sans-serif;
+}
+
+.logo {
+    float: right;
+    clear:right;
+    width: 380px;
+    text-align: center;
+}
+
+#chart {
+    float: right;
+    clear: right;
+    margin-top: 80px;
+}
+
+</style>
+<head>
+    <title>Tailgating: 1 Reception Staff</title>
+</head>
+<body>
+    <div class="logo" style="margin-top: -40px;">
+        <img src="logo.png" />
+    </div>
+    <div class="logo">
+        <img src="ucl-logo.png" />
+    </div>
+    <div class="header">
+        <h1>Tailgating: 1 Reception Staff</h1>
+    </div>
+
+    <div id="chart"></div>
+
+<script src="d3.v3.min.js"></script>
+<script src="c3.min.js"></script>
+<script src="tg-1.log"></script>
+<script>
+
+var chart_index = {
+    'reception' : 0,
+    'tailgate' : 1,
+    'challenge' : 2
+}
+
+var chart_data = [
+    ['reception', 0],
+    ['tailgate', 0],
+    ['challenge', 0]
+]
+
+var chart = c3.generate({
+    bindto: '#chart',
+    data: {
+      columns: chart_data,
+      types: {
+          'reception': 'bar',
+          'tailgate': 'bar',
+          'challenge': 'bar',
+      },
+      colors: {
+          'reception' : 'green',
+          'tailgate' : 'red',
+          'challenge' : 'yellow'
+      }
+    },
+    size: { width: 350 },
+    axis: {
+        y : { max : 20 }
+    }
+
+});
+
+function increment_chart(name) {
+    idx = chart_index[name]
+    cur = chart_data[idx][1]
+    chart_data[idx][1] = cur + 1
+
+    chart.load({
+        columns: chart_data
+    });
+}
+
+//var data;
+var locations;
+var locDict = {};
+var links = [];
+var eventLog;
+var resources = [];
+var resDict = {};
+
+//d3.json("test.log", function(error, json) {
+//    if (error) return console.warn(error);
+
+//    data = json;
+locations = data.locations;
+for(var i in locations) {
+    //console.warn(locations[i]);
+    locDict[locations[i].id] = locations[i];
+}
+
+//console.warn(locDict);
+
+for(var i in data.links) {
+    lnk = data.links[i];
+    if(lnk.from in locDict && lnk.to in locDict) {
+        links.push( {source: locDict[lnk.from], target: locDict[lnk.to]});
+    }
+}
+
+//console.warn(links);
+
+eventLog = data.log;
+
+//});
+
+var width = 960,
+    height = 700;
+
+var locSize = 100;
+var locAdjust = locSize / 2;
+
+var fill = d3.scale.category20();
+
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .on("mousemove", mousemove)
+    .on("mousedown", mousedown);
+
+svg.append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.append("rect")
+    .attr("id", "progress")
+    .attr("width", 0)
+    .attr("height", 10)
+
+
+var force = d3.layout.force()
+    .size([width, height])
+    .nodes(locations)
+    .links(links)
+    .linkDistance(locSize * 2)
+    .charge(-3000)
+    .on("tick", tick)
+    .on("end", startProcessing);
+
+
+var nodes = force.nodes(),
+    links = force.links(),
+    node = svg.selectAll(".location"),
+    link = svg.selectAll(".link"),
+    resource = svg.selectAll(".resource"),
+    message = svg.selectAll(".message");
+
+restart();
+
+
+eventIndex = 0;
+curTime = 0.0;
+timeStep = 10;
+endTime = eventLog[eventLog.length - 1].time;
+var procVar;
+
+function startProcessing() {
+    if(typeof procVar === 'undefined') {
+        procVar = window.setInterval(processEvents, 60);
+    }
+}
+
+function processEvents() {
+
+    //curTime += timeStep;
+
+    var evt = eventLog[eventIndex];
+    curTime = evt.time;
+
+    d3.select("#progress")
+        .transition()
+        .duration(50)
+        .attr("width", (curTime / endTime) * width);
+
+
+
+    do {
+
+        switch(evt.type) {
+            case "add-proc":
+            case "remove-proc":
+            case "update-proc":
+            break;
+            case "add-resource":
+
+            //it's a location we are displaying
+            res = evt.resource;
+            if (evt.location in locDict) {
+                loc = locDict[evt.location];
+                res.location = loc;
+            } else {
+                res.location = {id: evt.location};
+            }
+
+            res.xoffset = -15 + Math.random() * (locSize - 15);
+            res.yoffset = -15 + Math.random() * (locSize - 30);
+
+            resources.push(res);
+            resDict[res.id] = res;
+
+            updateResources();
+            break;
+            case "move-resource":
+                force.stop()
+                res = resDict[evt.id];
+
+
+                var newloc;
+                if(evt.to in locDict) {
+                    loc = locDict[evt.to];
+                    newloc = loc;
+                } else {
+                    newloc = {id: evt.to};
+                }
+
+                res.location = newloc;
+
+                d3.select( "#id" +  evt.id )
+                    .transition()
+                    .duration(600)
+                    .attr("transform", function (d) {
+                        xy = moveResource(res, newloc);
+                        return "translate(" + xy.x + "," + xy.y + "),scale(.1)";
+                });
+
+                //restart();
+
+
+                break;
+            case "remove-resource":
+                d3.select("#id" + evt.id).remove();
+                break;
+            case "end-log":
+                window.clearInterval(procVar);
+                //location.reload(true);
+                location.href = "vis2.htm";
+                break;
+            case "choice":
+
+                //xoff = 25 - Math.random() * 50;
+                //yoff = 25 - Math.random() * 50;
+                xoff = 0;
+                yoff = 21;
+
+                agent = resDict[evt.id];
+                xy = positionResource(agent)
+
+
+                var g = svg.append("g")
+                            .attr("class", "message")
+                            .attr("transform", "translate(" + (xy.x + xoff) + "," + (xy.y + yoff) +  ")");
+
+                g.append("rect")
+                    .attr("width", 200)
+                    .attr("height", 20)
+                    .style("fill", "yellow")
+                    .style("stroke", "black")
+                    .style("opacity", .4);
+
+                g.append("text")
+                    .text("Choice: " + evt.value)
+                    .attr("dy", "1em");
+
+                g.transition()
+                    .delay(500)
+                    .duration(2000)
+                    .style("opacity", 0)
+                    .remove()
+
+                break;
+                case "event":
+
+                    //xoff = 25 - Math.random() * 50;
+                    //yoff = 25 - Math.random() * 50;
+                    xoff = 0;
+                    yoff = 0;
+
+                    agent = resDict[evt.id];
+                    xy = positionResource(agent)
+
+
+                    var g = svg.append("g")
+                                .attr("class", "message")
+                                .attr("transform", "translate(" + (xy.x + xoff) + "," + (xy.y + yoff) +  ")");
+
+                    g.append("rect")
+                        .attr("width", 200)
+                        .attr("height", 20)
+                        .style("fill", "lightgreen")
+                        .style("stroke", "black")
+                        .style("opacity", .4);
+
+                    g.append("text")
+                        .text(evt.value)
+                        .attr("dy", "1em");
+
+                    g.transition()
+                        .delay(500)
+                        .duration(2000)
+                        .style("opacity", 0)
+                        .remove()
+
+                    break;
+                case "change-attributes":
+                    o = d3.select("#id" + evt.id)
+                    for(key in evt.attr) {
+                        o.attr(key, evt.attr[key])
+                    }
+                    for(key in evt.style) {
+                        o.style(key, evt.style[key])
+                    }
+                    break;
+                case "inc-count":
+                    increment_chart(evt.var);
+                    break;
+        }
+
+    eventIndex ++;
+    evt = eventLog[eventIndex];
+
+    } while(evt.time == 0.0);
+}
+
+
+function mousemove() {
+
+}
+
+function mousedown() {
+
+  restart();
+}
+
+function positionResource(r) {
+    if(r.location.id in locDict) {
+        return {x:r.location.x + r.xoffset, y:r.location.y + r.yoffset};
+    } else {
+        return {x:-50, y:-50};
+    }
+}
+
+function moveResource(r, loc) {
+
+    if(loc.id in locDict) {
+        return {x:loc.x + r.xoffset, y:loc.y + r.yoffset};
+    } else {
+        return {x:-50, y:-50};
+    }
+
+}
+
+function tick() {
+
+  link.attr("x1", function(d) { return d.source.x + locAdjust; })
+      .attr("y1", function(d) { return d.source.y + locAdjust; })
+      .attr("x2", function(d) { return d.target.x + locAdjust; })
+      .attr("y2", function(d) { return d.target.y + locAdjust; });
+
+  //node.attr("x", function(d) { return d.x; })
+//      .attr("y", function(d) { return d.y; });
+    node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"})
+
+
+    resource.attr("transform", function (d) {
+        xy = positionResource(d);
+        return "translate(" + xy.x + "," + xy.y + "),scale(.1)";
+        });
+}
+
+function restart() {
+  link = link.data(links);
+
+  link.enter().insert("line", ".node")
+      .attr("class", "link");
+
+  node = node.data(nodes);
+
+  var g =node.enter().insert("g")
+      .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"})
+      .call(force.drag);
+
+  g.append("rect")
+      .attr("class", "location")
+      .attr("width", 100)
+      .attr("height", 100)
+      .call(force.drag)
+
+  g.append("text")
+          .text(function(d) {
+              return d.name;
+          })
+          .attr("dy","1em")
+          .attr("dx", "1em");
+
+
+    force.start();
+
+}
+
+function updateResources() {
+    resource = resource.data(resources);
+
+
+
+
+    //var r = resource.enter().insert("circle")
+    var r = resource.enter().insert("path")
+        .attr("id", function(d) { return "id" + d.id; })
+        .attr("d", "m 252.84375,220.9375 c -41.81584,0 -75.6875,33.90291 -75.6875,75.71875 0,28.91302 16.20701,54.02705 40.03125,66.78125 -43.33692,13.86608 -74.5,52.27336 -74.5,97.5 0,56.90623 53.27452,43.90625 114.125,43.90625 60.85048,0 106.21875,12.99998 106.21875,-43.90625 0,-45.22664 -31.16307,-83.63392 -74.5,-97.5 23.82424,-12.7542 40.03125,-37.86823 40.03125,-66.78125 0,-41.81584 -33.9029,-75.71875 -75.71875,-75.71875 z")
+        .attr("class", "resource")
+        .attr("r", 10)
+        .attr("transform", function (d) {
+        xy = positionResource(d);
+        return "translate(" + xy.x + "," + xy.y + "),scale(.1)";
+    });
+
+}
+
+
+
+</script>
+
+
+
+</body>
