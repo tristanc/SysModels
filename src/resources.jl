@@ -67,8 +67,8 @@ end
 function find(f :: Function, count :: Int64 = 1)
     function find_res(resources)
         filtered = filter(f, resources)
-        if length(filtered) > 0
-            if count == 0
+        if length(filtered) > 0 && length(filtered) >= count
+            if count == 0 
                 return true, filtered
             else
                 return true, filtered[1:count]
