@@ -53,9 +53,10 @@ function bytype(t :: Type, min :: Int64, max :: Int64)
         filtered = filter(a -> isa(a, t), resources)
         if length(filtered) >= min
             count = length(filtered)
-            if count > max
+            if count > max && max <= length(filtered)
                 count = max
             end
+            
             return true, filtered[1:count]
         else
             return false, filtered
