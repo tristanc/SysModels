@@ -54,6 +54,7 @@ module SysModels
     export start, hold, sleep, now, time_of_day
     export get_location, get_func, get_funcs, get_model
     export run, compose
+    export add_startup_process, add_env_process
 
     export @claim, ClaimTree, ClaimTreeNode
 

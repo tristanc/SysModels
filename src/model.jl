@@ -33,6 +33,18 @@ function get_model(proc :: Process)
 	return proc.simulation.model
 end
 
+
+
+function add_startup_process(m :: Model, p :: Process)
+	add_startup_process(m, [p])
+end
+
+function add_startup_process(m :: Model, p :: Vector{Process})
+	append!(m.env_processes, p)
+end
+
+add_env_process(m, p) = add_startup_process(m,p)
+
 function compose(m1 :: Model, iface1 :: String, m2 :: Model, iface2 :: String)
 
 	model = Model()
